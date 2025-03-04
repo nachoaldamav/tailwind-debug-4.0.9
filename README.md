@@ -1,54 +1,16 @@
-# React + TypeScript + Vite
+# Canditates search issue in @tailwindcss/vite@^4.0.8
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This reproduction shows an issue @tailwindcss/vite@^4.0.8 that breaks the candidates search when the config file (css) is loaded from a package.
 
-Currently, two official plugins are available:
+In `@tailwindcss/vite@4.0.7` it works because it uses the Module Graph to find the candidates, but it was replaced with a FS based system in this PR [tailwindcss#16631](https://github.com/tailwindlabs/tailwindcss/pull/16631).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Steps
 
-## Expanding the ESLint configuration
+1. run `pnpm dev`, open the preview a check that the button is loading with Tailwind styles applied.
+2. in the `package.json`, replace `"@tailwindcss/vite": "4.0.7"` with `"@tailwindcss/vite": "4.0.9"` and run `pnpm i`.
+3. run `pnpm dev`, now the button does not have styles applied.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Observations
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+- Theorically, this could be fixed by using `@source`, but as seen in `node_modules/@ialdama/tailwind-config/styles.css`, it does not work.
+- This is probably caused by pnpm dependencies structure, as the css file is not really loading from `node_modules/@ialdama/tailwind-config/styles.css` but rather `node_modules/.pnpm/@ialdama+tailwind-config@1.0.0/node_modules/@ialdama/tailwind-config/styles.css`.
