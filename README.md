@@ -1,6 +1,6 @@
 # Canditates search issue in @tailwindcss/vite@^4.0.8
 
-This reproduction shows an issue @tailwindcss/vite@^4.0.8 that breaks the candidates search when the config file (css) is loaded from a package.
+This reproduction shows an issue in `@tailwindcss/vite@^4.0.8` that breaks the candidates search when the config file (css) is loaded from a package.
 
 In `@tailwindcss/vite@4.0.7` it works because it uses the Module Graph to find the candidates, but it was replaced with a FS based system in this PR [tailwindcss#16631](https://github.com/tailwindlabs/tailwindcss/pull/16631).
 
